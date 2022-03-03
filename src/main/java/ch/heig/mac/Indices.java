@@ -14,6 +14,7 @@ public class Indices {
     protected Map<String, List<String>> requiredIndices = Map.ofEntries(
             // TODO: For each query, if needed, add the index creation requests
             // Map.entry(<method name>, List.of("CREATE INDEX ...", "CREATE INDEX ..."))
+            Map.entry("greatReviewers", List.of("CREATE INDEX user_comments ON comments(email)"))
     );
 
     public Indices(Cluster cluster) {
@@ -22,7 +23,8 @@ public class Indices {
 
     private void createIndex(String createQuery) {
         try {
-            cluster.query(createQuery);
+            // j'ai du changer ça pour que ça marche aussi
+            cluster.bucket("mflix-sample").defaultScope().query(createQuery);
         } catch (IndexExistsException ex) {
             // Ignore already existing index
             // You may need to manually delete old indices if you change them in this class after executing this method
