@@ -93,7 +93,7 @@ public class Requests {
                 "SELECT c.movie_id, CONCAT2(\", \",ARRAY_AGG(c.text)) as text\n" +
                         "FROM movies m\n" +
                         "INNER JOIN comments c ON m._id = c.movie_id\n" +
-                        "WHERE ARRAY_CONTAINS(m.directors,$director)\n" +
+                        "WHERE $director WITHIN m.directors\n" +
                         "GROUP BY c.movie_id",
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
         );
@@ -108,7 +108,7 @@ public class Requests {
                         "WHERE c.movie_id IN (\n" +
                         "    SELECT RAW m._id\n" +
                         "    FROM movies m\n" +
-                        "    WHERE ARRAY_CONTAINS(m.directors,$director) )\n" +
+                        "    WHERE $director WITHIN m.directors )\n" +
                         "GROUP BY movie_id",
                         QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
         );
