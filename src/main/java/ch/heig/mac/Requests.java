@@ -1,11 +1,11 @@
 package ch.heig.mac;
 
-import java.util.List;
-
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
+
+import java.util.List;
 
 
 public class Requests {
@@ -80,15 +80,39 @@ public class Requests {
     }
 
     public List<JsonObject> confusingMovies() {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT movies.imdb.id as movie_id, movies.title\n" +
+                        "FROM movies\n" +
+                        "WHERE ARRAY_LENGTH(movies.directors) > 20"
+        );
+        return result.rowsAsObject();
     }
 
     public List<JsonObject> commentsOfDirector1(String director) {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT c.movie_id, CONCAT2(\", \",ARRAY_AGG(c.text)) as text\n" +
+                        "FROM movies m\n" +
+                        "INNER JOIN comments c ON m._id = c.movie_id\n" +
+                        "WHERE ARRAY_CONTAINS(m.directors,$director)\n" +
+                        "GROUP BY c.movie_id",
+                QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
+        );
+        return result.rowsAsObject();
     }
 
     public List<JsonObject> commentsOfDirector2(String director) {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT movie_id,\n" +
+                        "       CONCAT2(\", \",ARRAY_AGG(c.text)) AS text\n" +
+                        "FROM comments c\n" +
+                        "WHERE c.movie_id IN (\n" +
+                        "    SELECT RAW m._id\n" +
+                        "    FROM movies m\n" +
+                        "    WHERE ARRAY_CONTAINS(m.directors,$director) )\n" +
+                        "GROUP BY movie_id",
+                        QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
+        );
+        return result.rowsAsObject();
     }
 
     // Returns the number of documents updated.
