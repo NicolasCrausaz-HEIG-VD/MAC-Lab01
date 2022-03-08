@@ -27,8 +27,5 @@ public class Main {
         indices.createRequiredIndices();
 
         requests.getCollectionNames().forEach(System.out::println);
-
-        // Juste pour tester la requete 4
-        requests.greatReviewers().forEach(System.out::println);
     }
 }

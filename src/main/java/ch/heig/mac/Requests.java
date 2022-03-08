@@ -1,8 +1,10 @@
 package ch.heig.mac;
 
 import java.util.List;
+
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.query.QueryOptions;
 import com.couchbase.client.java.query.QueryResult;
 
 
@@ -42,16 +44,23 @@ public class Requests {
     public List<String> greatReviewers() {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "SELECT RAW u.name\n" +
-                         "FROM users u\n" +
-                         "INNER JOIN comments comment On u.email = comment.email\n" +
-                         "GROUP BY u.name\n" +
+                        "FROM users u\n" +
+                        "INNER JOIN comments comment On u.email = comment.email\n" +
+                        "GROUP BY u.name\n" +
                         " HAVING COUNT(comment) > 300;"
         );
         return result.rowsAs(String.class);
     }
 
     public List<JsonObject> bestMoviesOfActor(String actor) {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT DISTINCT imdb.id as imdb_id, imdb.rating, `cast`\n" +
+                        "FROM movies\n" +
+                        "WHERE ($actor WITHIN `cast`) AND imdb.rating <> \"\" AND imdb.rating > 8;"
+                ,
+                QueryOptions.queryOptions().parameters(JsonObject.create().put("actor", actor))
+        );
+        return result.rowsAsObject();
     }
 
     public List<JsonObject> plentifulDirectors() {
