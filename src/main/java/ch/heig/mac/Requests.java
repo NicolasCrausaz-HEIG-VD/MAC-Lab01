@@ -1,9 +1,10 @@
 package ch.heig.mac;
 
-import java.util.List;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.query.QueryResult;
+
+import java.util.List;
 
 
 public class Requests {
@@ -27,11 +28,23 @@ public class Requests {
     }
 
     public List<JsonObject> hiddenGem() {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT title\n" +
+                        "FROM movies\n" +
+                        "WHERE tomatoes.critic.rating = 10\n" +
+                        "AND tomatoes.viewer IS MISSING");
+        return result.rowsAsObject();
     }
 
     public List<JsonObject> topReviewers() {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT u.name, COUNT(u.name) as cnt\n" +
+                        "FROM users u\n" +
+                        "INNER JOIN comments comment ON u.email = comment.email\n" +
+                        "GROUP BY u.name\n" +
+                        "ORDER BY COUNT(u.name) DESC"
+        );
+        return result.rowsAs(JsonObject.class);
     }
 
     public List<String> greatReviewers() {
