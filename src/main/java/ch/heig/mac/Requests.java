@@ -59,7 +59,7 @@ public class Requests {
                         "FROM users u\n" +
                         "INNER JOIN comments comment On u.email = comment.email\n" +
                         "GROUP BY u.name\n" +
-                        " HAVING COUNT(comment) > 300;"
+                        "HAVING COUNT(comment) > 300;"
         );
         return result.rowsAs(String.class);
     }
@@ -76,7 +76,14 @@ public class Requests {
     }
 
     public List<JsonObject> plentifulDirectors() {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT d AS director_name, COUNT(*) as count_film\n" +
+                        "FROM movies\n" +
+                        "UNNEST directors d\n" +
+                        "GROUP BY d\n" +
+                        "HAVING COUNT(*) > 30;"
+        );
+        return result.rowsAsObject();
     }
 
     public List<JsonObject> confusingMovies() {
