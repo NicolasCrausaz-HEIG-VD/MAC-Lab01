@@ -23,7 +23,6 @@ public class Indices {
 
     private void createIndex(String createQuery) {
         try {
-            // j'ai du changer ça pour que ça marche aussi
             cluster.bucket("mflix-sample").defaultScope().query(createQuery);
         } catch (IndexExistsException ex) {
             // Ignore already existing index

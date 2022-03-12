@@ -124,7 +124,15 @@ public class Requests {
 
     // Returns the number of documents updated.
     public long removeEarlyProjection(String movieId) {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "UPDATE theaters AS t\n" +
+                        "SET t.schedule = ARRAY v FOR v IN t.schedule WHEN v.movieId != $id END\n" +
+                        "WHERE ANY v IN t.schedule SATISFIES v.movieId = $id END\n" +
+                        "RETURNING t;",
+                QueryOptions.queryOptions().parameters(JsonObject.create().put("id", movieId))
+        );
+
+        return result.rowsAsObject().size();
     }
 
     public List<JsonObject> nightMovies() {
