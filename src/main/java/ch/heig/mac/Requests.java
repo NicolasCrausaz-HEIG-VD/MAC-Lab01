@@ -125,9 +125,9 @@ public class Requests {
     // Returns the number of documents updated.
     public long removeEarlyProjection(String movieId) {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
-                "UPDATE theaters AS t\n" +
-                        "SET t.schedule = ARRAY v FOR v IN t.schedule WHEN v.movieId != $id END\n" +
-                        "WHERE ANY v IN t.schedule SATISFIES v.movieId = $id END\n" +
+                "UPDATE theaters t\n" +
+                        "SET t.schedule = ARRAY v FOR v IN t.schedule WHEN v.hourBegin >= \"18:00:00\" END\n" +
+                        "WHERE ANY v IN t.schedule SATISFIES v.hourBegin < \"18:00:00\" AND v.movieId = $id END\n" +
                         "RETURNING t;",
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("id", movieId))
         );
@@ -136,7 +136,18 @@ public class Requests {
     }
 
     public List<JsonObject> nightMovies() {
-        throw new UnsupportedOperationException("Not implemented, yet");
+        QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+                "SELECT filmsWithSchedules.movieId movie_id, m.title AS title\n" +
+                        "FROM (\n" +
+                        "      SELECT sch.movieId, ARRAY_AGG(sch.hourBegin) AS filmScheds\n" +
+                        "      FROM theaters t\n" +
+                        "      UNNEST t.schedule AS sch\n" +
+                        "      GROUP BY sch.movieId\n" +
+                        ") AS filmsWithSchedules\n" +
+                        "JOIN movies m ON m._id = filmsWithSchedules.movieId\n" +
+                        "WHERE EVERY startTime IN filmsWithSchedules.filmScheds SATISFIES startTime >= \"18:00:00\" END;");
+
+        return result.rowsAsObject();
     }
 
 
