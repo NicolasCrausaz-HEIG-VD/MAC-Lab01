@@ -57,7 +57,7 @@ public class Requests {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "SELECT RAW u.name\n" +
                         "FROM users u\n" +
-                        "INNER JOIN comments comment On u.email = comment.email\n" +
+                        "INNER JOIN comments comment ON u.email = comment.email\n" +
                         "GROUP BY u.name\n" +
                         "HAVING COUNT(comment) > 300;"
         );
@@ -68,7 +68,7 @@ public class Requests {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "SELECT DISTINCT imdb.id as imdb_id, imdb.rating, `cast`\n" +
                         "FROM movies\n" +
-                        "WHERE ($actor WITHIN `cast`) AND imdb.rating <> \"\" AND imdb.rating > 8;"
+                        "WHERE ($actor WITHIN `cast`) AND imdb.rating <> '' AND imdb.rating > 8;"
                 ,
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("actor", actor))
         );
@@ -115,7 +115,7 @@ public class Requests {
                         "WHERE c.movie_id IN (\n" +
                         "    SELECT RAW m._id\n" +
                         "    FROM movies m\n" +
-                        "    WHERE $director WITHIN m.directors )\n" +
+                        "    WHERE $director WITHIN m.directors)\n" +
                         "GROUP BY movie_id",
                         QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
         );
