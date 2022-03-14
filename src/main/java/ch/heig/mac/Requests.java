@@ -48,7 +48,8 @@ public class Requests {
                         "FROM users u\n" +
                         "JOIN comments comment ON u.email = comment.email\n" +
                         "GROUP BY u.name\n" +
-                        "ORDER BY COUNT(u.name) DESC"
+                        "ORDER BY COUNT(u.name) DESC \n" +
+                        "LIMIT 10"
         );
         return result.rowsAs(JsonObject.class);
     }
@@ -87,6 +88,7 @@ public class Requests {
     }
 
     public List<JsonObject> confusingMovies() {
+        // see https://docs.couchbase.com/server/current/n1ql/n1ql-language-reference/arrayfun.html#fn-array-count
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "SELECT movies.imdb.id as movie_id, movies.title\n" +
                         "FROM movies\n" +
@@ -138,7 +140,6 @@ public class Requests {
                         "RETURNING t;",
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("id", movieId))
         );
-
         return result.rowsAsObject().size();
     }
 
