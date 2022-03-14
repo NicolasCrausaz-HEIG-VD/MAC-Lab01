@@ -15,6 +15,7 @@ public class Indices {
             // TODO: For each query, if needed, add the index creation requests
             // Map.entry(<method name>, List.of("CREATE INDEX ...", "CREATE INDEX ..."))
             Map.entry("greatReviewers", List.of("CREATE INDEX user_comments ON comments(email)")),
+            Map.entry("topReviewers", List.of("CREATE INDEX user_comments ON comments(email)")),
             Map.entry("commentsOfDirector1", List.of("CREATE INDEX comments_movie_id ON comments(movie_id)"))
     );
 

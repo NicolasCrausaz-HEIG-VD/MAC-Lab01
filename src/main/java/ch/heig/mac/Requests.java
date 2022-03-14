@@ -46,7 +46,7 @@ public class Requests {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "SELECT u.name, COUNT(u.name) as cnt\n" +
                         "FROM users u\n" +
-                        "INNER JOIN comments comment ON u.email = comment.email\n" +
+                        "JOIN comments comment ON u.email = comment.email\n" +
                         "GROUP BY u.name\n" +
                         "ORDER BY COUNT(u.name) DESC"
         );
