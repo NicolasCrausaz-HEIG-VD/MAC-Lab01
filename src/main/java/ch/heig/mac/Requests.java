@@ -127,7 +127,7 @@ public class Requests {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
                 "UPDATE theaters t\n" +
                         "SET t.schedule = ARRAY v FOR v IN t.schedule WHEN v.hourBegin >= \"18:00:00\" END\n" +
-                        "WHERE ANY v IN t.schedule SATISFIES v.hourBegin < \"18:00:00\" AND v.movieId = $id END\n" +
+                        "WHERE ANY v IN t.schedule SATISFIES v.movieId = $id AND v.hourBegin < \"18:00:00\" END\n" +
                         "RETURNING t;",
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("id", movieId))
         );
@@ -149,6 +149,4 @@ public class Requests {
 
         return result.rowsAsObject();
     }
-
-
 }
