@@ -14,7 +14,8 @@ public class Indices {
     protected Map<String, List<String>> requiredIndices = Map.ofEntries(
             // TODO: For each query, if needed, add the index creation requests
             // Map.entry(<method name>, List.of("CREATE INDEX ...", "CREATE INDEX ..."))
-            Map.entry("greatReviewers", List.of("CREATE INDEX user_comments ON comments(email)"))
+            Map.entry("greatReviewers", List.of("CREATE INDEX user_comments ON comments(email)")),
+            Map.entry("commentsOfDirector1", List.of("CREATE INDEX comments_movie_id ON comments(movie_id)"))
     );
 
     public Indices(Cluster cluster) {

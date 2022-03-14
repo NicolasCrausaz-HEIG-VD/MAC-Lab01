@@ -96,12 +96,21 @@ public class Requests {
     }
 
     public List<JsonObject> commentsOfDirector1(String director) {
+        /**
+         * Version qui concatene les commentaires de tous les films d'un même réalisateur
+         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
+         "SELECT c.movie_id, CONCAT2(\", \",ARRAY_AGG(c.text)) as text\n" +
+         "FROM movies m\n" +
+         "INNER JOIN comments c ON m._id = c.movie_id\n" +
+         "WHERE $director WITHIN m.directors\n" +
+         "GROUP BY c.movie_id",
+         QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
+         **/
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
-                "SELECT c.movie_id, CONCAT2(\", \",ARRAY_AGG(c.text)) as text\n" +
+                "SELECT c.movie_id, c.text\n" +
                         "FROM movies m\n" +
-                        "INNER JOIN comments c ON m._id = c.movie_id\n" +
-                        "WHERE $director WITHIN m.directors\n" +
-                        "GROUP BY c.movie_id",
+                        "JOIN comments c ON m._id = c.movie_id\n" +
+                        "WHERE $director WITHIN m.directors\n",
                 QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
         );
         return result.rowsAsObject();
@@ -109,14 +118,12 @@ public class Requests {
 
     public List<JsonObject> commentsOfDirector2(String director) {
         QueryResult result = cluster.bucket("mflix-sample").defaultScope().query(
-                "SELECT movie_id,\n" +
-                        "       CONCAT2(\", \",ARRAY_AGG(c.text)) AS text\n" +
+                "SELECT movie_id, c.text\n" +
                         "FROM comments c\n" +
                         "WHERE c.movie_id IN (\n" +
                         "    SELECT RAW m._id\n" +
                         "    FROM movies m\n" +
-                        "    WHERE $director WITHIN m.directors)\n" +
-                        "GROUP BY movie_id",
+                        "    WHERE $director WITHIN m.directors)\n",
                         QueryOptions.queryOptions().parameters(JsonObject.create().put("director", director))
         );
         return result.rowsAsObject();
